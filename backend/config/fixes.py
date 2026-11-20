@@ -36,7 +36,7 @@ FIX_F6 = True
 FIX_F7 = True
 FIX_F8 = True
 FIX_F9 = True
-FIX_F10 = True
+FIX_F10 = False   # off: use the original rule (YES on the top bucket, NO on every other live bucket)
 FIX_F11 = True
 
 # F5: simulate every path to this Miami-local time (hour, minute). See eval/REPORT_v2.md for the late-high check.
