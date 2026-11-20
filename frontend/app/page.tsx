@@ -292,11 +292,12 @@ export default function Home() {
   const lastHistoryForecastRunAtRef = useRef<string | null>(null);
 
   // Model enable/disable switches
-  const ALL_MODELS = ["accuweather_1h", "accuweather_2h", "accuweather_3h", "var_1h", "var_2h", "var_3h"] as const;
+  // 1-hour models are not run by the backend (FIX_F5), so they are not shown.
+  const ALL_MODELS = ["accuweather_2h", "accuweather_3h", "var_2h", "var_3h"] as const;
   type ModelKey = typeof ALL_MODELS[number];
   const [enabledModels, setEnabledModels]       = useState<Record<ModelKey, boolean>>({
-    accuweather_1h: true, accuweather_2h: true, accuweather_3h: true,
-    var_1h: true,         var_2h: true,         var_3h: true,
+    accuweather_2h: true, accuweather_3h: true,
+    var_2h: true,         var_3h: true,
   });
   const enabledModelsRef = useRef(enabledModels);
   enabledModelsRef.current = enabledModels;
@@ -527,7 +528,7 @@ export default function Home() {
 
   async function refreshForecast() {
     setIsRefreshingForecast(true);
-    setAlgoMessage("Forecast refresh started — all 6 models are running (~2–3 min). Page will update automatically.");
+    setAlgoMessage("Forecast refresh started — all 4 models are running (~2–3 min). Page will update automatically.");
     try {
       await fetch("/api/kalshi/algorithm/refresh", { method: "POST" });
     } finally {
@@ -649,7 +650,7 @@ export default function Home() {
           <div className="algo-models">
             <h3 className="algo-section-title">Forecast Models</h3>
             {!modelsReady && !algoState?.forecast?.running && (
-              <p className="algo-hint">No forecast yet — click <strong>Refresh Forecast</strong> to run all 6 models.</p>
+              <p className="algo-hint">No forecast yet — click <strong>Refresh Forecast</strong> to run all 4 models.</p>
             )}
             {algoState?.forecast?.loop?.waiting_for_hfmetar && (
               <p className="algo-running">

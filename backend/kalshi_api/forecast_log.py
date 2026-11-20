@@ -42,3 +42,32 @@ def append_forecast(ensemble: dict, current_f, known_high_f, now=None):
                 w.writerow(row)
     except Exception as exc:
         print(f"[forecast_log] failed to log forecast ({exc})")
+
+
+def read_recent(limit=100):
+    """Up to `limit` most recent rows, newest first, shaped like sheets_history snapshots
+    ({"timestamp", "current_temp_f", "model_forecast_f"}). Returns [] if the log is missing or unreadable."""
+    def _to_float(value):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    try:
+        path = _path()
+        if not path.exists():
+            return []
+        with _lock, open(path, newline="", encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+    except Exception as exc:
+        print(f"[forecast_log] failed to read forecast log ({exc})")
+        return []
+
+    return [
+        {
+            "timestamp":        row.get("ts_utc"),
+            "current_temp_f":   _to_float(row.get("current_f")),
+            "model_forecast_f": _to_float(row.get("ensemble_mean")),
+        }
+        for row in reversed(rows[-limit:])
+    ]

@@ -175,17 +175,19 @@ def append_snapshot(current_temp_f, model_forecast_f):
 def get_recent_snapshots(limit=100):
     """Return up to `limit` most recent snapshots, newest first, as dicts
     shaped like {"timestamp", "current_temp_f", "model_forecast_f"}.
-    Returns [] if Sheets isn't configured or the read fails.
+    Falls back to the local forecast log (forecast_log.csv) if Sheets isn't configured or the read fails.
     """
+    from .forecast_log import read_recent
+
     worksheet = _get_worksheet()
     if worksheet is None:
-        return []
+        return read_recent(limit)
 
     try:
         rows = worksheet.get_all_values()
     except Exception as exc:
         print(f"[sheets_history] failed to read snapshots ({exc})")
-        return []
+        return read_recent(limit)
 
     if len(rows) <= 1:
         return []
